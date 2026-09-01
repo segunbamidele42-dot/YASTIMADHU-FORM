@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Place your order</title>
+<style>
+  :root{
+    --navy:#2b2e6f;
+    --teal-placeholder:#3aa79d;
+    --green:#2f6b34;
+    --green-bright:#3c9142;
+    --border:#e3e1db;
+    --bg:#faf9f6;
+    --red:#d64545;
+    --text-dark:#2a2a2a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 80px;
+  }
+  form{
+    width:100%;
+    max-width:400px;
+  }
+  h1{
+    font-size:22px;
+    font-weight:800;
+    margin:0 0 4px;
+    color:var(--text-dark);
+  }
+  .subtitle{
+    color:var(--text-dark);
+    font-size:13px;
+    margin:0 0 24px;
+  }
+  label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--text-dark);
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .field{margin-bottom:18px;}
+  .required{color:var(--red);}
+  input[type=text],
+  input[type=tel],
+  input[type=email],
+  textarea,
+  select{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:14px;
+    color:var(--text-dark) !important; /* FIX: force black typed/selected text everywhere */
+    background:#fff;
+    outline:none;
+    font-family:inherit;
+  }
+  input::placeholder,
+  textarea::placeholder{
+    color:var(--text-dark);
+    opacity:.55;
+  }
+  input:focus,
+  textarea:focus,
+  select:focus{
+    border-color:var(--navy);
+    box-shadow:0 0 0 2px rgba(43,46,111,.08);
+  }
+  textarea{
+    resize:vertical;
+    min-height:80px;
+  }
+  select{
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%232b2e6f' stroke-width='1.6' fill='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+    /* FIX: no more teal-by-default; color rule above already forces black */
+  }
+  /* Style just the "Select..." placeholder option a bit lighter, purely cosmetic */
+  select option[value=""]{
+    color:#8a8a8a;
+  }
+  .offer-legend{
+    margin-bottom:12px;
+  }
+  .offer{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    cursor:pointer;
+    background:#fff;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .offer:hover{border-color:var(--navy);}
+  .offer input[type=radio]{
+    width:18px;
+    height:18px;
+    accent-color:var(--navy);
+    flex:0 0 auto;
+  }
+  .offer.selected{
+    border-color:var(--navy);
+    box-shadow:0 0 0 2px rgba(43,46,111,.08);
+  }
+  .offer-text{display:flex;flex-direction:column;gap:2px;}
+  .offer-title{
+    font-size:13px;
+    font-weight:700;
+    color:var(--text-dark);
+  }
+  .offer-sub{
+    font-size:12px;
+    color:var(--text-dark);
+  }
+  .offer-price{
+    font-size:14px;
+    font-weight:800;
+    color:var(--green-bright);
+    margin-top:2px;
+  }
+  button[type=submit]{
+    width:100%;
+    padding:14px;
+    background:var(--green);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.02em;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  button[type=submit]:hover{background:var(--green-bright);}
+  button[type=submit]:disabled{opacity:.6;cursor:not-allowed;}
+  .error-msg{
+    display:none;
+    background:#fdecec;
+    color:var(--red);
+    border:1px solid #f3c6c6;
+    padding:10px 12px;
+    border-radius:8px;
+    font-size:13px;
+    margin-bottom:16px;
+  }
+</style>
+</head>
+<body>
+<form id="orderForm" novalidate>
+  <h1>Place your order</h1>
+  <p class="subtitle">Fill in your details Below</p>
+
+  <div class="error-msg" id="errorMsg">Please fill in all required fields.</div>
+
+  <!--
+    HIDDEN PRODUCT FIELD
+    This travels with every submission to Formspree (so it shows up in your
+    email/backend), but it is never rendered on the page, so the customer
+    never sees it. Just change the value to whatever product/SKU/offer name
+    you want tagged on this particular landing page.
+  -->
+  <input type="hidden" name="Product Name" value="YASTIMADHU FORM">
+
+  <div class="field">
+    <label for="fullName">Full Name</label>
+    <input type="text" id="fullName" name="Full Name" placeholder="Your full name" required>
+  </div>
+
+  <div class="field">
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" name="Phone Number" placeholder="08012345678"
+           inputmode="numeric" pattern="[0-9]{11}" maxlength="11"
+           title="Enter an 11-digit phone number" required>
+  </div>
+
+  <div class="field">
+    <label for="whatsapp">WhatsApp Number</label>
+    <input type="tel" id="whatsapp" name="WhatsApp Number" placeholder="Your WhatsApp Number"
+           inputmode="numeric" pattern="[0-9]{11}" maxlength="11"
+           title="Enter an 11-digit WhatsApp number">
+  </div>
+
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="Email" placeholder="your@email.com">
+  </div>
+
+  <div class="field">
+    <label for="address">Delivery Address <span class="required">*</span></label>
+    <textarea id="address" name="Delivery Address" placeholder="Your delivery address" required></textarea>
+  </div>
+
+  <div class="field">
+    <label for="state">Delivery State <span class="required">*</span></label>
+    <select id="state" name="Delivery State" required>
+      <option value="" disabled selected>Select state...</option>
+      <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option>
+      <option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option>
+      <option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option>
+      <option>Ekiti</option><option>Enugu</option><option>FCT - Abuja</option><option>Gombe</option>
+      <option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option>
+      <option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option>
+      <option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option>
+      <option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option>
+      <option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option>
+      <option>Zamfara</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="gender">Gender</label>
+    <select id="gender" name="Gender" required>
+      <option value="" disabled selected>Select gender...</option>
+      <option>Male</option>
+      <option>Female</option>
+   
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="timing">When do you want to receive your order?</label>
+    <select id="timing" name="Preferred Delivery Time" required>
+      <option value="" disabled selected>Select...</option>
+      <option>Today</option>
+      <option>Tomorrow</option>
+      <option>Specific date (mention in Notes)</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Select Offer</label>
+    <div class="offer-legend">
+      <label class="offer" data-value="Buy 1 Bottle + Free Delivery — 1 unit — ₦59,500">
+        <input type="radio" name="Selected Offer" value="Buy 1 Bottle + Free Delivery (1 unit) - N59,500" required>
+        <div class="offer-text">
+          <span class="offer-title">BUY 1 BOTTLE + FREE DELIVERY</span>
+          <span class="offer-sub">1 UNIT</span>
+          <span class="offer-price">₦59,500</span>
+        </div>
+      </label>
+      <label class="offer" data-value="Buy 2 Bottles + Get 1 Free — 3 units — ₦119,500">
+        <input type="radio" name="Selected Offer" value="Buy 2 Bottles + Get 1 Free (3 units) - N119,500">
+        <div class="offer-text">
+          <span class="offer-title">BUY 2 BOTTLES + GET 1 FREE</span>
+          <span class="offer-sub">3 UNITS</span>
+          <span class="offer-price">₦119,500</span>
+        </div>
+      </label>
+      <label class="offer" data-value="Buy 4 Bottles + Get 2 Free — 6 units — ₦239,500">
+        <input type="radio" name="Selected Offer" value="Buy 4 Bottles + Get 2 Free (6 units) - N239,500">
+        <div class="offer-text">
+          <span class="offer-title">BUY 4 BOTTLES + GET 2 FREE</span>
+          <span class="offer-sub">6 UNITS</span>
+          <span class="offer-price">₦239,500</span>
+        </div>
+      </label>
+      <label class="offer" data-value="Buy 8 Bottles + Get 4 Free — 12 units — ₦349,500">
+        <input type="radio" name="Selected Offer" value="Buy 8 Bottles + Get 4 Free (12 units) - N349,500">
+        <div class="offer-text">
+          <span class="offer-title">BUY 8 BOTTLES + GET 4 FREE</span>
+          <span class="offer-sub">12 UNITS</span>
+          <span class="offer-price">₦349,500</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="notes">Delivery Notes (optional)</label>
+    <input type="text" id="notes" name="Delivery Notes" placeholder="Any special instructions">
+  </div>
+
+  <button type="submit" id="submitBtn">Submit Order</button>
+</form>
+
+<script>
+  // ====== SETUP: paste your Formspree endpoint below ======
+  // 1. Go to https://formspree.io and create a free account.
+  // 2. Create a new form, it gives you a URL like https://formspree.io/f/xxxxabcd
+  // 3. Paste that URL as the value of FORMSPREE_ENDPOINT below.
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xppaznqa";
+  // ==========================================================
+
+  const THANK_YOU_URL = 'https://yastimadhu-landing-page.vercel.app/thank-you';
+
+  const form = document.getElementById('orderForm');
+  const errorMsg = document.getElementById('errorMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const phoneEl = document.getElementById('phone');
+  const addressEl = document.getElementById('address');
+
+  let orderSubmitted = false;   // becomes true once a real submit succeeds/queues
+  let abandonSent = false;      // guards against sending the abandoned-cart ping twice
+
+  // FIX: this form is meant to be embedded (iframe) inside your landing page.
+  // window.location.href only redirects the iframe itself, not the visible
+  // page, which is why "nothing happened" on submit. This redirects the
+  // TOP browser window instead, with a safe fallback.
+  function redirectToThankYou() {
+    try {
+      if (window.top && window.top !== window.self) {
+        window.top.location.href = THANK_YOU_URL;
+        return;
+      }
+    } catch (err) {
+      // Cross-origin framing — can't reach the parent, fall back below.
+    }
+    window.location.href = THANK_YOU_URL;
+  }
+
+  // ---------- Retry queue: resend anything that failed earlier due to network issues ----------
+  async function flushPendingOrders() {
+    let pending = [];
+    try { pending = JSON.parse(localStorage.getItem('pendingOrders') || '[]'); } catch (err) { pending = []; }
+    if (!pending.length || FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) return;
+
+    const stillPending = [];
+    for (const record of pending) {
+      try {
+        const fd = new FormData();
+        Object.entries(record).forEach(([k, v]) => fd.append(k, v));
+        const res = await fetch(FORMSPREE_ENDPOINT, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } });
+        if (!res.ok) stillPending.push(record);
+      } catch (err) {
+        stillPending.push(record); // still no network, keep for next time
+      }
+    }
+    localStorage.setItem('pendingOrders', JSON.stringify(stillPending));
+  }
+  flushPendingOrders(); // try on every page load
+
+  // ---------- Abandoned cart recovery: they filled it in but left without submitting ----------
+  function sendAbandonedCart() {
+    if (orderSubmitted || abandonSent) return;
+    if (FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) return;
+    // Only counts as an abandoned lead once they've given at least a valid phone + address
+    const phoneOk = phoneEl.value.replace(/\D/g, '').length === 11;
+    const addressOk = addressEl.value.trim().length > 0;
+    if (!phoneOk || !addressOk) return;
+
+    abandonSent = true;
+    const data = new FormData(form);
+    data.append('Status', 'Abandoned Cart - did not complete submission');
+    data.append('_subject', 'Abandoned order form');
+    navigator.sendBeacon(FORMSPREE_ENDPOINT, data);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') sendAbandonedCart();
+  });
+  window.addEventListener('pagehide', sendAbandonedCart);
+
+  // Restrict Phone Number and WhatsApp Number to digits only, max 11
+  ['phone', 'whatsapp'].forEach(id => {
+    const input = document.getElementById(id);
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/g, '').slice(0, 11);
+    });
+  });
+
+  // Highlight the selected offer card
+  document.querySelectorAll('.offer').forEach(label => {
+    const radio = label.querySelector('input[type=radio]');
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.offer').forEach(o => o.classList.remove('selected'));
+      if (radio.checked) label.classList.add('selected');
+    });
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.style.display = 'none';
+
+    if (!form.checkValidity()) {
+      errorMsg.style.display = 'block';
+      form.reportValidity();
+      return;
+    }
+
+    const data = new FormData(form);
+
+    // Keep a local backup copy too (visible only on this device, as a safety net)
+    try {
+      const record = Object.fromEntries(data.entries());
+      record._submittedAt = new Date().toISOString();
+      const existing = JSON.parse(localStorage.getItem('orders') || '[]');
+      existing.push(record);
+      localStorage.setItem('orders', JSON.stringify(existing));
+    } catch (err) { /* ignore storage errors */ }
+
+    if (FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) {
+      // No email endpoint configured yet — still let the demo proceed to thank-you page
+      orderSubmitted = true;
+      redirectToThankYou();
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        orderSubmitted = true;
+        redirectToThankYou();
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch (err) {
+      // Network issue (or Formspree unreachable): queue it so it auto-retries next visit,
+      // but still take them to the thank-you page since we captured their order.
+      try {
+        const record = Object.fromEntries(data.entries());
+        record._queuedAt = new Date().toISOString();
+        const pending = JSON.parse(localStorage.getItem('pendingOrders') || '[]');
+        pending.push(record);
+        localStorage.setItem('pendingOrders', JSON.stringify(pending));
+      } catch (storageErr) { /* ignore */ }
+
+      orderSubmitted = true;
+      redirectToThankYou();
+    }
+  });
+</script>
+
+</body>
+</html>
