@@ -171,7 +171,7 @@
 
   <!--
     HIDDEN PRODUCT FIELD
-    This travels with every submission to Formspree (so it shows up in your
+    This travels with every submission to Web3Forms (so it shows up in your
     email/backend), but it is never rendered on the page, so the customer
     never sees it. Just change the value to whatever product/SKU/offer name
     you want tagged on this particular landing page.
@@ -291,12 +291,10 @@
 </form>
 
 <script>
-  // ====== SETUP: paste your Formspree endpoint below ======
-  // 1. Go to https://formspree.io and create a free account.
-  // 2. Create a new form, it gives you a URL like https://formspree.io/f/xxxxabcd
-  // 3. Paste that URL as the value of FORMSPREE_ENDPOINT below.
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xppaznqa";
-  // ==========================================================
+  // ====== Web3Forms endpoint + access key ======
+  const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+  const WEB3FORMS_ACCESS_KEY = "6bc3bc4e-3a29-46a8-b5da-d9ff1645577c";
+  // ==============================================
 
   const THANK_YOU_URL = 'https://yastimadhu-landing-page.vercel.app/thank-you';
 
@@ -329,14 +327,15 @@
   async function flushPendingOrders() {
     let pending = [];
     try { pending = JSON.parse(localStorage.getItem('pendingOrders') || '[]'); } catch (err) { pending = []; }
-    if (!pending.length || FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) return;
+    if (!pending.length) return;
 
     const stillPending = [];
     for (const record of pending) {
       try {
         const fd = new FormData();
         Object.entries(record).forEach(([k, v]) => fd.append(k, v));
-        const res = await fetch(FORMSPREE_ENDPOINT, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } });
+        fd.append('access_key', WEB3FORMS_ACCESS_KEY);
+        const res = await fetch(WEB3FORMS_ENDPOINT, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } });
         if (!res.ok) stillPending.push(record);
       } catch (err) {
         stillPending.push(record); // still no network, keep for next time
@@ -349,7 +348,6 @@
   // ---------- Abandoned cart recovery: they filled it in but left without submitting ----------
   function sendAbandonedCart() {
     if (orderSubmitted || abandonSent) return;
-    if (FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) return;
     // Only counts as an abandoned lead once they've given at least a valid phone + address
     const phoneOk = phoneEl.value.replace(/\D/g, '').length === 11;
     const addressOk = addressEl.value.trim().length > 0;
@@ -357,9 +355,10 @@
 
     abandonSent = true;
     const data = new FormData(form);
+    data.append('access_key', WEB3FORMS_ACCESS_KEY);
     data.append('Status', 'Abandoned Cart - did not complete submission');
-    data.append('_subject', 'Abandoned order form');
-    navigator.sendBeacon(FORMSPREE_ENDPOINT, data);
+    data.append('subject', 'Abandoned order form');
+    navigator.sendBeacon(WEB3FORMS_ENDPOINT, data);
   }
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') sendAbandonedCart();
@@ -394,43 +393,39 @@
     }
 
     const data = new FormData(form);
+    data.append('access_key', WEB3FORMS_ACCESS_KEY);
+    data.append('subject', 'New Yastimadhu Order');
 
     // Keep a local backup copy too (visible only on this device, as a safety net)
     try {
-      const record = Object.fromEntries(data.entries());
+      const record = Object.fromEntries(new FormData(form).entries());
       record._submittedAt = new Date().toISOString();
       const existing = JSON.parse(localStorage.getItem('orders') || '[]');
       existing.push(record);
       localStorage.setItem('orders', JSON.stringify(existing));
     } catch (err) { /* ignore storage errors */ }
 
-    if (FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) {
-      // No email endpoint configured yet — still let the demo proceed to thank-you page
-      orderSubmitted = true;
-      redirectToThankYou();
-      return;
-    }
-
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
         method: 'POST',
         body: data,
         headers: { 'Accept': 'application/json' }
       });
-      if (res.ok) {
+      const result = await res.json();
+      if (result.success) {
         orderSubmitted = true;
         redirectToThankYou();
       } else {
-        throw new Error('Submission failed');
+        throw new Error(result.message || 'Submission failed');
       }
     } catch (err) {
-      // Network issue (or Formspree unreachable): queue it so it auto-retries next visit,
+      // Network issue (or Web3Forms unreachable): queue it so it auto-retries next visit,
       // but still take them to the thank-you page since we captured their order.
       try {
-        const record = Object.fromEntries(data.entries());
+        const record = Object.fromEntries(new FormData(form).entries());
         record._queuedAt = new Date().toISOString();
         const pending = JSON.parse(localStorage.getItem('pendingOrders') || '[]');
         pending.push(record);
